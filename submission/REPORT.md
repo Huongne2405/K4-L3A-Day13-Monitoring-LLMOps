@@ -7,9 +7,9 @@
 - **Họ và tên:** Nguyễn Văn Hưởng
 - **MSSV:** 2A202602743
 - **Lớp:** K4-L3A
-- **Repository URL:**
+- **Repository URL:** https://github.com/Huongne2405/K4-L3A-Day13-Monitoring-LLMOps
 - **Commit SHA cuối:**
-- **Challenge ID:**
+- **Challenge ID:** `day13-k4-l3a-monitoring-llmops-v1`
 - **Tên project Langfuse cá nhân:** `day13-k4-l3a-2A202602743`
 
 ## 2. Evidence index
@@ -72,14 +72,14 @@
 
 ## 7. Điều tra challenge
 
-- **Challenge ID:**
-- **Khoảng thời gian điều tra:**
-- **Triệu chứng từ metrics:**
-- **Log line và correlation ID liên quan:**
-- **Trace ID và span gây ảnh hưởng:**
-- **Root cause:**
-- **Fix action:**
-- **Preventive measure:**
+- **Challenge ID:** `day13-k4-l3a-monitoring-llmops-v1`, cohort K4.
+- **Khoảng thời gian điều tra:** 2026-09-29 09:25:26–09:25:41 UTC (16:25:26–16:25:41 ICT). Workload chính thức gồm 5 request feature `monitoring` với concurrency 5.
+- **Triệu chứng từ metrics:** [Dashboard incident](evidence/12-incident-metric.png) cho thấy P50 2664 ms, P95/P99 3898 ms, vượt ngưỡng SLO P95 ≤ 3000 ms; TTFT P95 chỉ 55 ms, error rate 0% và retrieval success 100%. Đây là sự cố latency của request thành công, không phải lỗi HTTP hoặc suy giảm TTFT.
+- **Log line và correlation ID liên quan:** [Log incident](evidence/13-incident-log.png) có event `response_sent`, `correlation_id=req-aad0e2c6`, `latency_ms=3898`, `ttft_ms=55`, model `claude-sonnet-4-5`, `tool_name=retrieval` và `tool_success=true` tại `2026-09-29T09:25:30.481243Z`.
+- **Trace ID và span gây ảnh hưởng:** Trace `d9e558666a59a9e35bd0afc71fe49a6e` có cùng `correlation_id=req-aad0e2c6`. Root `lab-agent-run` mất 3.900 giây; child `retrieval` mất 2.505 giây, trong khi `llm-generation` chỉ mất 0.160 giây và TTFT 0.054 giây. [Trace incident](evidence/14-incident-trace.png) cho thấy phần lớn thời gian nằm ở retrieval.
+- **Root cause:** Challenge bật incident `rag_slow`, chèn độ trễ vào bước retrieval của feature `monitoring`. Bằng chứng định lượng là retrieval chiếm khoảng 64% thời gian root và dài hơn generation khoảng 15.7 lần; TTFT, error rate và generation không có dấu hiệu bất thường tương ứng.
+- **Fix action:** Tắt incident `rag_slow`, sau đó chạy lại cùng workload để xác nhận P95 trở về dưới 3000 ms. Trong vận hành thực tế, áp dụng timeout cho retrieval và chuyển sang fallback/cache khi upstream vượt ngưỡng thay vì giữ request chờ kéo dài.
+- **Preventive measure:** Theo dõi riêng retrieval latency bên cạnh retrieval success, cảnh báo khi P95 request hoặc retrieval vượt SLO trong thời gian cấu hình, và luôn giữ `correlation_id` trên log lẫn child observations. Runbook phải yêu cầu so sánh retrieval với generation trước khi rollback prompt hoặc thay model để tránh xử lý sai nguyên nhân.
 
 ## 8. Giải thích và tự đánh giá
 
@@ -89,7 +89,7 @@
 - **Cách hiểu luồng Metrics → Logs → Traces:** Metrics dùng để phát hiện triệu chứng và khoanh vùng thời gian, ví dụ P95/TTFT tăng, error rate tăng hoặc retrieval success giảm. Từ cửa sổ đó, tôi lọc structured log để lấy request bất thường cùng `correlation_id`, model, feature và latency. Tôi mở trace có cùng `correlation_id`, so sánh duration và status của retrieval với generation, rồi mới kết luận bước gây ảnh hưởng. Root cause chỉ hợp lệ khi metric, log và trace cùng chỉ về một request hoặc cùng khoảng sự cố.
 - **Vai trò của prompt version, token/cost, SLO hoặc rollback trong vận hành LLM:** Prompt name/version/label cho biết chính xác cấu hình nào tạo ra một câu trả lời, giúp so sánh baseline v1 với candidate v2 và tránh ghi version giả trong code. Token và cost giúp phát hiện prompt dài hoặc output tăng bất thường. SLO 99.5% trong 3000 ms chuyển trải nghiệm người dùng thành ngưỡng đo được và error budget 0.5% quy định mức lỗi chấp nhận. Label `production` cho phép chuyển phiên bản mà không sửa source; khi candidate gây lỗi, chậm hoặc giảm chất lượng, có thể rollback về v1 và kiểm chứng bằng trace mới.
 - **Điều quan trọng nhất đã học:** Monitoring LLM chỉ hữu ích khi mọi tín hiệu liên kết được với nhau và vẫn bảo vệ dữ liệu. Dashboard cho biết có vấn đề, log xác định request, trace chỉ ra bước retrieval hay generation, còn prompt version giải thích cấu hình nào đang chạy. Thiếu `correlation_id`, child observation hoặc PII protection thì chuỗi điều tra không đáng tin cậy.
-- **Hạn chế hoặc phần chưa hoàn thành, nếu có:** CP1 và CP2 đã hoàn thành về source, validator và runtime evidence. Ảnh danh sách trace `06` cần chụp lại với bộ lọc chỉ root observation và thấy tên project cá nhân. Phần challenge CP3, ba evidence `12`–`14`, repository URL và commit SHA cuối sẽ được điền sau khi nhận challenge chính thức và tạo commit nộp bài.
+- **Hạn chế hoặc phần chưa hoàn thành, nếu có:** CP1, CP2 và phần điều tra CP3 đã hoàn thành về source, validator và evidence runtime. Commit SHA cuối sẽ được điền khi chốt bài nộp.
 
 ## 9. Checklist trước khi nộp
 
