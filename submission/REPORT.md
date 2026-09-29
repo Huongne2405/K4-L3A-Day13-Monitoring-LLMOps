@@ -8,7 +8,7 @@
 - **MSSV:** 2A202602743
 - **Lớp:** K4-L3A
 - **Repository URL:** https://github.com/Huongne2405/K4-L3A-Day13-Monitoring-LLMOps
-- **Commit SHA cuối:**
+- **Commit SHA chứa đầy đủ source/evidence:** `4dad9cbdb4a7c1fd20b7454d06229e28fff71434`
 - **Challenge ID:** `day13-k4-l3a-monitoring-llmops-v1`
 - **Tên project Langfuse cá nhân:** `day13-k4-l3a-2A202602743`
 
@@ -16,34 +16,34 @@
 
 Điền đúng đường dẫn tới evidence thực tế. Có thể đổi tên hoặc dùng nhiều ảnh nếu cần.
 
-| Evidence            | Đường dẫn                             |
-| ------------------- | ------------------------------------- |
-| Pytest cuối         | `evidence/01-pytest.txt`              |
-| Log validator       | `evidence/02-log-validator.txt`       |
-| Dashboard validator | `evidence/03-dashboard-validator.txt` |
-| Structured log      | `evidence/04-structured-log.jsonl`    |
-| PII redaction       | `evidence/05-pii-redaction.txt`       |
-| Trace list          | `evidence/06-trace-list.png`          |
-| Trace waterfall     | `evidence/07-trace-waterfall.png`     |
-| Trace metadata      | `evidence/08a-trace-metadata.png`, `evidence/08b-generation-usage.png` |
-| Prompt versions     | `evidence/09-prompt-versions.png`     |
+| Evidence            | Đường dẫn                                                                                                             |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Pytest cuối         | `evidence/01-pytest.txt`                                                                                              |
+| Log validator       | `evidence/02-log-validator.txt`                                                                                       |
+| Dashboard validator | `evidence/03-dashboard-validator.txt`                                                                                 |
+| Structured log      | `evidence/04-structured-log.jsonl`                                                                                    |
+| PII redaction       | `evidence/05-pii-redaction.txt`                                                                                       |
+| Trace list          | `evidence/06-trace-list.png`                                                                                          |
+| Trace waterfall     | `evidence/07-trace-waterfall.png`                                                                                     |
+| Trace metadata      | `evidence/08a-trace-metadata.png`, `evidence/08b-generation-usage.png`                                                |
+| Prompt versions     | `evidence/09-prompt-versions.png`                                                                                     |
 | Prompt rollback     | `evidence/10a-production-v2.png`, `evidence/10b-production-v1-rollback.png`, `evidence/10c-rollback-final-labels.png` |
-| Dashboard runtime   | `evidence/11-dashboard-overview.png`  |
-| Incident metric     | `evidence/12-incident-metric.png`     |
-| Incident log        | `evidence/13-incident-log.png`        |
-| Incident trace      | `evidence/14-incident-trace.png`      |
+| Dashboard runtime   | `evidence/11-dashboard-overview.png`                                                                                  |
+| Incident metric     | `evidence/12-incident-metric.png`                                                                                     |
+| Incident log        | `evidence/13-incident-log.png`                                                                                        |
+| Incident trace      | `evidence/14-incident-trace.png`                                                                                      |
 
 ## 3. Kết quả kỹ thuật
 
-| Nội dung                | Baseline | Kết quả cuối | Nhận xét |
-| ----------------------- | -------- | ------------ | -------- |
-| `validate_logs.py`      | [80/100](evidence/00-cp1-baseline.txt) | [100/100](evidence/02-log-validator.txt) | 12 correlation ID, đủ metadata, 0 PII leak |
-| `validate_dashboard.py` | 6/6      | [6/6](evidence/03-dashboard-validator.txt) | Đủ sáu panel, query, unit và threshold |
-| `pytest`                |          | 27 passed    | Toàn bộ test pass sau CP2 |
-| Số traces hợp lệ        | 0        | [10](evidence/06-trace-list.png) | Xác minh bằng Langfuse Observations API v2 |
-| Số PII leak             | 0        | 0            | Kiểm tra trên structured log bằng validator độc lập |
-| Latency P95 / TTFT P95  |          | 954 ms / 55 ms | Workload CP2, cửa sổ dashboard 60 phút |
-| Retrieval success rate  |          | 100%         | 12/12 retrieval thành công trong log runtime |
+| Nội dung                | Baseline                               | Kết quả cuối                               | Nhận xét                                            |
+| ----------------------- | -------------------------------------- | ------------------------------------------ | --------------------------------------------------- |
+| `validate_logs.py`      | [80/100](evidence/00-cp1-baseline.txt) | [100/100](evidence/02-log-validator.txt)   | 12 correlation ID, đủ metadata, 0 PII leak          |
+| `validate_dashboard.py` | 6/6                                    | [6/6](evidence/03-dashboard-validator.txt) | Đủ sáu panel, query, unit và threshold              |
+| `pytest`                |                                        | 27 passed                                  | Toàn bộ test pass sau CP2                           |
+| Số traces hợp lệ        | 0                                      | [10](evidence/06-trace-list.png)           | Xác minh bằng Langfuse Observations API v2          |
+| Số PII leak             | 0                                      | 0                                          | Kiểm tra trên structured log bằng validator độc lập |
+| Latency P95 / TTFT P95  |                                        | 954 ms / 55 ms                             | Workload CP2, cửa sổ dashboard 60 phút              |
+| Retrieval success rate  |                                        | 100%                                       | 12/12 retrieval thành công trong log runtime        |
 
 ## 4. Logging và PII
 
@@ -89,14 +89,14 @@
 - **Cách hiểu luồng Metrics → Logs → Traces:** Metrics dùng để phát hiện triệu chứng và khoanh vùng thời gian, ví dụ P95/TTFT tăng, error rate tăng hoặc retrieval success giảm. Từ cửa sổ đó, tôi lọc structured log để lấy request bất thường cùng `correlation_id`, model, feature và latency. Tôi mở trace có cùng `correlation_id`, so sánh duration và status của retrieval với generation, rồi mới kết luận bước gây ảnh hưởng. Root cause chỉ hợp lệ khi metric, log và trace cùng chỉ về một request hoặc cùng khoảng sự cố.
 - **Vai trò của prompt version, token/cost, SLO hoặc rollback trong vận hành LLM:** Prompt name/version/label cho biết chính xác cấu hình nào tạo ra một câu trả lời, giúp so sánh baseline v1 với candidate v2 và tránh ghi version giả trong code. Token và cost giúp phát hiện prompt dài hoặc output tăng bất thường. SLO 99.5% trong 3000 ms chuyển trải nghiệm người dùng thành ngưỡng đo được và error budget 0.5% quy định mức lỗi chấp nhận. Label `production` cho phép chuyển phiên bản mà không sửa source; khi candidate gây lỗi, chậm hoặc giảm chất lượng, có thể rollback về v1 và kiểm chứng bằng trace mới.
 - **Điều quan trọng nhất đã học:** Monitoring LLM chỉ hữu ích khi mọi tín hiệu liên kết được với nhau và vẫn bảo vệ dữ liệu. Dashboard cho biết có vấn đề, log xác định request, trace chỉ ra bước retrieval hay generation, còn prompt version giải thích cấu hình nào đang chạy. Thiếu `correlation_id`, child observation hoặc PII protection thì chuỗi điều tra không đáng tin cậy.
-- **Hạn chế hoặc phần chưa hoàn thành, nếu có:** CP1, CP2 và phần điều tra CP3 đã hoàn thành về source, validator và evidence runtime. Commit SHA cuối sẽ được điền khi chốt bài nộp.
+- **Hạn chế hoặc phần chưa hoàn thành, nếu có:** Không còn hạn chế kỹ thuật trong phạm vi bài lab; CP1, CP2 và CP3 đã hoàn thành với source, validator và evidence runtime tương ứng.
 
 ## 9. Checklist trước khi nộp
 
-- [ ] Kết quả và evidence thuộc commit SHA cuối.
-- [ ] Tất cả ảnh/output mở được bằng đường dẫn tương đối.
-- [ ] Incident evidence nối đúng metric → log → trace.
-- [ ] Trace/prompt evidence thuộc project Langfuse cá nhân và ảnh không lộ key/secret.
-- [ ] Repository chạy lại được theo README.
-- [ ] Không có secret, API key, PII thô hoặc evidence của người khác/lớp khác.
-- [ ] URL repo và commit SHA cuối đã được nộp trên LMS/Codelabs.
+- [x] Kết quả và evidence thuộc commit SHA đã ghi trong báo cáo.
+- [x] Tất cả ảnh/output mở được bằng đường dẫn tương đối.
+- [x] Incident evidence nối đúng metric → log → trace.
+- [x] Trace/prompt evidence thuộc project Langfuse cá nhân và ảnh không lộ key/secret.
+- [x] Repository chạy lại được theo README.
+- [x] Không có secret, API key, PII thô hoặc evidence của người khác/lớp khác.
+- [x] URL repo và commit SHA cuối đã được nộp trên LMS/Codelabs.
