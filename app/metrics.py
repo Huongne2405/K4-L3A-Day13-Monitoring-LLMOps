@@ -11,6 +11,7 @@ REQUEST_TOKENS_OUT: list[int] = []
 ERRORS: Counter[str] = Counter()
 TRAFFIC: int = 0
 QUALITY_SCORES: list[float] = []
+RETRIEVAL_RESULTS: list[bool] = []
 
 
 def record_request(
@@ -36,6 +37,10 @@ def record_error(error_type: str) -> None:
     ERRORS[error_type] += 1
 
 
+def record_retrieval(success: bool) -> None:
+    RETRIEVAL_RESULTS.append(success)
+
+
 
 def percentile(values: list[int], p: int) -> float:
     if not values:
@@ -59,4 +64,9 @@ def snapshot() -> dict:
         "tokens_out_total": sum(REQUEST_TOKENS_OUT),
         "error_breakdown": dict(ERRORS),
         "quality_avg": round(mean(QUALITY_SCORES), 4) if QUALITY_SCORES else 0.0,
+        "retrieval_success_rate": round(
+            100 * sum(RETRIEVAL_RESULTS) / len(RETRIEVAL_RESULTS), 2
+        )
+        if RETRIEVAL_RESULTS
+        else 0.0,
     }

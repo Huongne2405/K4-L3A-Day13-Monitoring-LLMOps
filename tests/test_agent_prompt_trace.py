@@ -20,12 +20,33 @@ class RecordingLangfuseClient:
     def __init__(self) -> None:
         self.prompt = ManagedPrompt()
         self.span_updates: list[dict] = []
+        self.observations: list[RecordingObservation] = []
 
     def get_prompt(self, name: str, **kwargs):
         return self.prompt
 
     def update_current_span(self, **kwargs) -> None:
         self.span_updates.append(kwargs)
+
+    def start_as_current_observation(self, **kwargs):
+        observation = RecordingObservation(kwargs)
+        self.observations.append(observation)
+        return observation
+
+
+class RecordingObservation:
+    def __init__(self, started_with: dict) -> None:
+        self.started_with = started_with
+        self.updates: list[dict] = []
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, traceback) -> None:
+        return None
+
+    def update(self, **kwargs) -> None:
+        self.updates.append(kwargs)
 
 
 def test_agent_records_prompt_version_with_v4_observation_api(monkeypatch) -> None:
@@ -67,3 +88,16 @@ def test_agent_records_prompt_version_with_v4_observation_api(monkeypatch) -> No
     assert span_update["version"] == "3"
     assert propagated[0]["metadata"]["correlation_id"] == "req-12345678"
     assert propagated[-1]["prompt"] is client.prompt
+
+    assert [item.started_with["as_type"] for item in client.observations] == [
+        "retriever",
+        "generation",
+    ]
+    retrieval, generation = client.observations
+    assert retrieval.updates[-1]["metadata"]["success"] is True
+    assert retrieval.updates[-1]["output"]["document_count"] == 1
+    assert generation.started_with["model"] == "claude-sonnet-4-5"
+    assert generation.started_with["prompt"] is client.prompt
+    assert generation.updates[-1]["usage_details"]["input"] > 0
+    assert generation.updates[-1]["usage_details"]["output"] > 0
+    assert generation.updates[-1]["cost_details"]["total"] > 0

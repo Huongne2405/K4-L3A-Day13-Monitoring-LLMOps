@@ -7,7 +7,13 @@ primary_slo:
     total_event: 'event == "request_received"'
   target_percent: 99.5
   error_budget_percent: 0.5
-  note: Học viên phải giải thích hoặc điều chỉnh ngưỡng bằng baseline của mình.
+  rationale: 3000 ms là ngưỡng P95 của dashboard; request lỗi hoặc vượt ngưỡng đều ảnh hưởng trực tiếp tới người dùng.
+  error_budget:
+    allowed_bad_event_fraction: 0.005
+    example_total_requests: 100000
+    example_allowed_bad_requests: 500
+    equivalent_time_over_28d: 3h21m36s
+    calculation: 100000 * (1 - 0.995) = 500 bad requests; 28d * 0.005 = 3h21m36s.
 guardrails:
   error_rate_pct_max: 2
   daily_cost_usd_max: 2.5

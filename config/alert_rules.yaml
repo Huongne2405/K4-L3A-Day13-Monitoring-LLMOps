@@ -1,25 +1,25 @@
 alerts:
-  - name: TODO_alert_1
-    severity: TODO
-    condition: TODO
-    duration: TODO
+  - name: User request latency above SLO
+    severity: critical
+    condition: 'latency_p95_ms > 3000'
+    duration: 5m
     type: symptom-based
-    channel: slack
-    owner: TODO
+    channel: '#llmops-alerts'
+    owner: llm-platform-oncall
     runbook: docs/alerts.md#alert-1
-  - name: TODO_alert_2
-    severity: TODO
-    condition: TODO
-    duration: TODO
+  - name: User request failure rate burns error budget
+    severity: critical
+    condition: 'error_rate_pct > 0.5'
+    duration: 10m
     type: symptom-based
-    channel: slack
-    owner: TODO
+    channel: '#llmops-alerts'
+    owner: llm-platform-oncall
     runbook: docs/alerts.md#alert-2
-  - name: TODO_alert_3
-    severity: TODO
-    condition: TODO
-    duration: TODO
+  - name: Answer quality or retrieval success degraded
+    severity: warning
+    condition: 'quality_score_avg < 0.75 or retrieval_success_rate_pct < 90'
+    duration: 15m
     type: symptom-based
-    channel: slack
-    owner: TODO
+    channel: '#llmops-alerts'
+    owner: ai-quality-oncall
     runbook: docs/alerts.md#alert-3

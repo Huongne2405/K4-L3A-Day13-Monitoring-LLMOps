@@ -3,6 +3,7 @@ from __future__ import annotations
 import os
 import time
 from dataclasses import dataclass
+from datetime import datetime, timedelta, timezone
 
 from . import metrics
 from .mock_llm import FakeLLM
@@ -51,7 +52,31 @@ class LabAgent:
             },
         ):
             started = time.perf_counter()
-            docs = retrieve(message)
+            with langfuse_client.start_as_current_observation(
+                name="retrieval",
+                as_type="retriever",
+                input={"query_preview": summarize_text(message)},
+                metadata={"feature": feature},
+            ) as retrieval_observation:
+                try:
+                    docs = retrieve(message)
+                    metrics.record_retrieval(True)
+                    retrieval_observation.update(
+                        output={
+                            "document_count": len(docs),
+                            "document_previews": [summarize_text(doc) for doc in docs],
+                        },
+                        metadata={"feature": feature, "success": True},
+                    )
+                except Exception as exc:
+                    metrics.record_retrieval(False)
+                    retrieval_observation.update(
+                        level="ERROR",
+                        status_message=type(exc).__name__,
+                        metadata={"feature": feature, "success": False},
+                    )
+                    raise
+
             prompt = resolve_prompt(
                 langfuse_client,
                 feature=feature,
@@ -71,13 +96,46 @@ class LabAgent:
                 },
                 version=prompt.version,
             )
-            # TODO (CP2): instrument retrieve() and FakeLLM.generate() as child
-            # observations. The nested generation must receive prompt, usage and cost.
+
             with propagate_attributes(prompt=prompt.managed_prompt):
-                response = self.llm.generate(prompt.text)
+                generation_started = datetime.now(timezone.utc)
+                with langfuse_client.start_as_current_observation(
+                    name="llm-generation",
+                    as_type="generation",
+                    input={
+                        "prompt_preview": summarize_text(prompt.text, max_len=500),
+                        "prompt_name": prompt.name,
+                        "prompt_label": prompt.label,
+                        "prompt_version": prompt.version,
+                    },
+                    model=self.model,
+                    prompt=prompt.managed_prompt,
+                ) as generation:
+                    response = self.llm.generate(prompt.text)
+                    cost_usd = self._estimate_cost(
+                        response.usage.input_tokens,
+                        response.usage.output_tokens,
+                    )
+                    generation.update(
+                        output={"answer_preview": summarize_text(response.text)},
+                        completion_start_time=generation_started
+                        + timedelta(milliseconds=response.ttft_ms),
+                        usage_details={
+                            "input": response.usage.input_tokens,
+                            "output": response.usage.output_tokens,
+                            "total": response.usage.input_tokens
+                            + response.usage.output_tokens,
+                        },
+                        cost_details={"total": cost_usd},
+                        metadata={
+                            "input_tokens": response.usage.input_tokens,
+                            "output_tokens": response.usage.output_tokens,
+                            "cost_usd": cost_usd,
+                            "ttft_ms": response.ttft_ms,
+                        },
+                    )
             quality_score = self._heuristic_quality(message, response.text, docs)
             latency_ms = int((time.perf_counter() - started) * 1000)
-            cost_usd = self._estimate_cost(response.usage.input_tokens, response.usage.output_tokens)
 
         metrics.record_request(
             latency_ms=latency_ms,
