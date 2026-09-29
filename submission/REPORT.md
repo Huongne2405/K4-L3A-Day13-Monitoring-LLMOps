@@ -7,7 +7,7 @@
 - **Họ và tên:** Nguyễn Văn Hưởng
 - **MSSV:** 2A202602743
 - **Lớp:** K4-L3A
-- **Repository URL:** https://github.com/Huongne2405/K4-L3A-Day13-Monitoring-LLMOps
+- **Repository URL:** https://github.com/Huongne2405/K4-L3A-Day13-NguyenVanHuong-2A202602743-Monitoring-LLMOps.git
 - **Commit SHA chứa đầy đủ source/evidence:** `4dad9cbdb4a7c1fd20b7454d06229e28fff71434`
 - **Challenge ID:** `day13-k4-l3a-monitoring-llmops-v1`
 - **Tên project Langfuse cá nhân:** `day13-k4-l3a-2A202602743`
