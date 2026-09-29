@@ -1,0 +1,11 @@
+CP1 runtime redaction result (synthetic test data)
+
+Email and phone log preview:
+"Contact [REDACTED_EMAIL] or [REDACTED_PHONE_VN]"
+
+CCCD and payment card log preview:
+"CCCD [REDACTED_CCCD] and card [REDACTED_CREDIT_CARD]"
+
+Independent validator result:
+Potential PII leaks detected: 0
++ [PASSED] PII scrubbing

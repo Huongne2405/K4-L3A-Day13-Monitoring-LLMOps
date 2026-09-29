@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="1440" viewBox="0 0 1440 1440">
+  <style>
+    .background { fill: #f4f7fb; }
+    .card { fill: #ffffff; stroke: #d9e2ef; stroke-width: 1.5; }
+    .title { font: 700 30px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #172033; }
+    .subtitle { font: 15px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #667085; }
+    .panel-title { font: 700 19px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #172033; }
+    .metric { font: 600 21px ui-monospace, SFMono-Regular, Menlo, monospace; fill: #253858; }
+    .threshold { font: 14px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: #667085; }
+    .status { font: 700 13px -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; fill: white; text-anchor: middle; }
+  </style>
+  <rect width="1440" height="900" class="background"/>
+  <text x="40" y="55" class="title">K4-L3A Day 13 — Monitoring &amp; LLMOps</text>
+  <text x="40" y="88" class="subtitle">Source: data/logs.jsonl · Time range: last 60 minutes · Refresh: 30 seconds · 24 log records</text>
+  <text x="40" y="115" class="subtitle">Generated: 2026-09-29 08:19 UTC</text>
+  
+    <g>
+      <rect x="40" y="150" width="670" height="220" rx="16" class="card"/>
+      <text x="70" y="195" class="panel-title">1. Latency percentiles and TTFT</text>
+      <rect x="595" y="170" width="85" height="32" rx="16" fill="#15803d"/>
+      <text x="637" y="192" class="status">PASS</text>
+      <text x="70" y="250" class="metric">P50 159 ms  |  P95 954 ms</text><text x="70" y="292" class="metric">P99 954 ms  |  TTFT P95 55 ms</text>
+      <text x="70" y="348" class="threshold">Threshold: P95 &lt;= 3000 ms</text>
+    </g>
+    
+    <g>
+      <rect x="730" y="150" width="670" height="220" rx="16" class="card"/>
+      <text x="760" y="195" class="panel-title">2. Request traffic</text>
+      <rect x="1285" y="170" width="85" height="32" rx="16" fill="#15803d"/>
+      <text x="1327" y="192" class="status">PASS</text>
+      <text x="760" y="250" class="metric">Requests 12</text><text x="760" y="292" class="metric">Active rate 6.00 requests/min</text>
+      <text x="760" y="348" class="threshold">Threshold: rate &gt;= 1 request/min</text>
+    </g>
+    
+    <g>
+      <rect x="40" y="390" width="670" height="220" rx="16" class="card"/>
+      <text x="70" y="435" class="panel-title">3. Errors and retrieval success</text>
+      <rect x="595" y="410" width="85" height="32" rx="16" fill="#15803d"/>
+      <text x="637" y="432" class="status">PASS</text>
+      <text x="70" y="490" class="metric">Error rate 0.00%</text><text x="70" y="532" class="metric">Retrieval success 100.00%</text>
+      <text x="70" y="588" class="threshold">Threshold: errors &lt;= 2%; retrieval &gt;= 90%</text>
+    </g>
+    
+    <g>
+      <rect x="730" y="390" width="670" height="220" rx="16" class="card"/>
+      <text x="760" y="435" class="panel-title">4. Cost over time</text>
+      <rect x="1285" y="410" width="85" height="32" rx="16" fill="#15803d"/>
+      <text x="1327" y="432" class="status">PASS</text>
+      <text x="760" y="490" class="metric">Total $0.025272</text><text x="760" y="532" class="metric">Window 60 minutes</text>
+      <text x="760" y="588" class="threshold">Threshold: total &lt;= $2.50</text>
+    </g>
+    
+    <g>
+      <rect x="40" y="630" width="670" height="220" rx="16" class="card"/>
+      <text x="70" y="675" class="panel-title">5. Input and output tokens</text>
+      <rect x="595" y="650" width="85" height="32" rx="16" fill="#15803d"/>
+      <text x="637" y="672" class="status">PASS</text>
+      <text x="70" y="730" class="metric">Input 504 tokens</text><text x="70" y="772" class="metric">Output 1,584 tokens</text>
+      <text x="70" y="828" class="threshold">Threshold: combined &lt;= 50,000 tokens</text>
+    </g>
+    
+    <g>
+      <rect x="730" y="630" width="670" height="220" rx="16" class="card"/>
+      <text x="760" y="675" class="panel-title">6. Quality proxy</text>
+      <rect x="1285" y="650" width="85" height="32" rx="16" fill="#15803d"/>
+      <text x="1327" y="672" class="status">PASS</text>
+      <text x="760" y="730" class="metric">Average 0.81 / 1.00</text><text x="760" y="772" class="metric">Heuristic quality score</text>
+      <text x="760" y="828" class="threshold">Threshold: mean &gt;= 0.75</text>
+    </g>
+    
+</svg>
